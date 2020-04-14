@@ -1,0 +1,97 @@
+{
+    "name": "@secretarium/react-native-ble",
+    "version": "0.1.0",
+    "description": "Secretarium BLE component for C3PO",
+    "main": "lib/commonjs/index.js",
+    "module": "lib/module/index.js",
+    "types": "lib/typescript/src/index.d.ts",
+    "react-native": "src/index.tsx",
+    "files": [
+        "src",
+        "lib",
+        "android",
+        "ios",
+        "c3po-react-native-ble.podspec"
+    ],
+    "scripts": {
+        "preinstall": "node ./scripts/hintYarn.js",
+        "test": "jest",
+        "typescript": "tsc --noEmit",
+        "lint": "eslint --ext .js,.ts,.tsx .",
+        "prepare": "bob build",
+        "release": "release-it",
+        "pods": "cd ios && node -e \"process.exit(require('os').platform() === 'darwin')\" || pod install",
+        "postinstall": "yarn pods"
+    },
+    "keywords": [
+        "react-native",
+        "ios",
+        "android"
+    ],
+    "repository": "https://github.com/secretarium/c3po-react-native-ble",
+    "author": "Florian Guitton <florian@secretarium.com> (https://github.com/fguitton)",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/secretarium/c3po-react-native-ble/issues"
+    },
+    "homepage": "https://github.com/secretarium/c3po-react-native-ble#readme",
+    "devDependencies": {
+        "@commitlint/config-conventional": "8.3.4",
+        "@react-native-community/bob": "0.10.0",
+        "@react-native-community/eslint-config": "1.0.0",
+        "@release-it/conventional-changelog": "1.1.1",
+        "@types/jest": "25.2.1",
+        "@types/react": "16.9.34",
+        "@types/react-native": "0.62.2",
+        "commitlint": "8.3.5",
+        "eslint": "6.8.0",
+        "husky": "4.2.5",
+        "jest": "25.3.0",
+        "react": "16.13.1",
+        "react-native": "0.62.2",
+        "release-it": "13.5.2",
+        "typescript": "3.8.3"
+    },
+    "peerDependencies": {
+        "react": "*",
+        "react-native": "*"
+    },
+    "jest": {
+        "preset": "react-native",
+        "modulePathIgnorePatterns": [
+            "<rootDir>/lib/"
+        ]
+    },
+    "husky": {
+        "hooks": {
+            "commit-msg": "commitlint -E HUSKY_GIT_PARAMS",
+            "pre-commit": "yarn lint && yarn typescript"
+        }
+    },
+    "release-it": {
+        "git": {
+            "commitMessage": "chore: release %s",
+            "tagName": "v%s"
+        },
+        "npm": {
+            "publish": true
+        },
+        "github": {
+            "release": true
+        },
+        "plugins": {
+            "@release-it/conventional-changelog": {
+                "preset": "angular"
+            }
+        }
+    },
+    "@react-native-community/bob": {
+        "source": "src",
+        "output": "lib",
+        "targets": [
+            "commonjs",
+            "module",
+            "typescript"
+        ]
+    }
+}
