@@ -21,7 +21,7 @@ open class C3POReactNativeBle: RCTEventEmitter, CBPeripheralManagerDelegate, CBC
     var centralReady: Bool = false
     var centralShouldLive: Bool = false
     var bluetoothServices: CBMutableService?
-    
+
     public override static func moduleName() -> String! {
         return "C3POReactNativeBle"
     }
@@ -30,7 +30,7 @@ open class C3POReactNativeBle: RCTEventEmitter, CBPeripheralManagerDelegate, CBC
     open override func supportedEvents() -> [String] {
         return ["onDeviceFound"]
     }
-    
+
     public func peripheralManagerDidUpdateState(_ peripheral: CBPeripheralManager) {
         if peripheral.state == .poweredOn {
             self.peripheralReady = true
@@ -39,7 +39,7 @@ open class C3POReactNativeBle: RCTEventEmitter, CBPeripheralManagerDelegate, CBC
             self.peripheralReady = false
         }
     }
-    
+
     public func centralManagerDidUpdateState(_ central: CBCentralManager) {
         if central.state == .poweredOn {
             self.centralReady = true
@@ -68,8 +68,12 @@ open class C3POReactNativeBle: RCTEventEmitter, CBPeripheralManagerDelegate, CBC
         if (self.peripheralManager == nil) {
             self.peripheralManager = CBPeripheralManager(delegate: self, queue: nil, options: nil)
         }
-        
+
         if (self.peripheralReady == false) {
+            return
+        }
+
+        if (self.peripheralManager?.isAdvertising == true) {
             return
         }
 
@@ -104,9 +108,9 @@ open class C3POReactNativeBle: RCTEventEmitter, CBPeripheralManagerDelegate, CBC
         startScan()
         resolve(true)
     }
-    
+
     func startScan() {
-        
+
         if (self.centralShouldLive == false) {
             return
         }
@@ -114,12 +118,16 @@ open class C3POReactNativeBle: RCTEventEmitter, CBPeripheralManagerDelegate, CBC
         if (self.centralManager == nil) {
             self.centralManager = CBCentralManager(delegate: self, queue: nil)
         }
-        
+
         if (self.centralReady == false) {
             return
         }
-        
-            self.centralManager?.scanForPeripherals(withServices: nil)
+
+        if (self.centralManager?.isScanning == true) {
+            return
+        }
+
+        self.centralManager?.scanForPeripherals(withServices: nil)
     }
 
     @objc
