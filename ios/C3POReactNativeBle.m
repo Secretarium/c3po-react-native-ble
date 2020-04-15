@@ -4,8 +4,13 @@
 
 @interface RCT_EXTERN_MODULE(C3POReactNativeBle, RCTEventEmitter)
 
+    + (BOOL)requiresMainQueueSetup
+    {
+        return YES;
+    }
+    
     RCT_EXTERN_METHOD(
-        supportedEvents
+        supportedEvents:
     )
 
     RCT_EXTERN_METHOD(
@@ -15,25 +20,25 @@
     RCT_EXTERN_METHOD(
         broadcast: (NSString *)uuid
         payload:(NSArray *)payload
-        resolve:(RCTPromiseResolveBlock)resolve
+        resolver:(RCTPromiseResolveBlock)resolve
         rejecter:(RCTPromiseRejectBlock)reject
     )
 
     RCT_EXTERN_METHOD(
-        stopBroadcast
-        resolve:(RCTPromiseResolveBlock)resolve
+        stopBroadcast:
+        (RCTPromiseResolveBlock)resolve
         rejecter:(RCTPromiseRejectBlock)reject
     )
 
     RCT_EXTERN_METHOD(
-        scan
-        resolve:(RCTPromiseResolveBlock)resolve
+        scan:
+        (RCTPromiseResolveBlock)resolve
         rejecter:(RCTPromiseRejectBlock)reject
     )
 
     RCT_EXTERN_METHOD(
-        stopScan
-        resolve:(RCTPromiseResolveBlock)resolve
+        stopScan:
+        (RCTPromiseResolveBlock)resolve
         rejecter:(RCTPromiseRejectBlock)reject
     )
 
