@@ -28,7 +28,7 @@ open class C3POReactNativeBle: RCTEventEmitter, CBPeripheralManagerDelegate, CBC
 
     @objc
     open override func supportedEvents() -> [String] {
-        return ["onDeviceFound"]
+        return ["onDeviceFound", "onBluetoothStateChange"]
     }
 
     public func peripheralManagerDidUpdateState(_ peripheral: CBPeripheralManager) {
@@ -50,10 +50,13 @@ open class C3POReactNativeBle: RCTEventEmitter, CBPeripheralManagerDelegate, CBC
     }
 
     public func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral, advertisementData: [String: Any], rssi RSSI: NSNumber) {
+
+        var list: [CBUUID] = advertisementData[CBAdvertisementDataServiceUUIDsKey] as? [CBUUID] ?? []
+
         self.sendEvent(withName: "onDeviceFound", body: [
             "name": peripheral.name ?? "",
-            "identifier": peripheral.identifier.uuidString ?? "",
-            "services": peripheral.services?.description ?? "",
+            "identifier": peripheral.identifier.uuidString ,
+            "services": list.map { $0.uuidString },
             "txPower": advertisementData["kCBAdvDataTxPowerLevel"] ?? 0,
             "rssi": RSSI.intValue
         ])
