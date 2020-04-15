@@ -10,8 +10,7 @@
         "src",
         "lib",
         "android",
-        "ios",
-        "c3po-react-native-ble.podspec"
+        "ios"
     ],
     "scripts": {
         "preinstall": "node ./scripts/hintYarn.js",
@@ -19,9 +18,7 @@
         "typescript": "tsc --noEmit",
         "lint": "eslint --ext .js,.ts,.tsx .",
         "prepare": "bob build",
-        "release": "release-it",
-        "pods": "cd ios && node -e \"process.exit(require('os').platform() === 'darwin')\" || pod install",
-        "postinstall": "yarn pods"
+        "release": "release-it"
     },
     "keywords": [
         "react-native",
