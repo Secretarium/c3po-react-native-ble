@@ -21,18 +21,12 @@ class C3POScanCallback : ScanCallback {
         if (result.scanRecord?.serviceUuids != null)
             for (uuid in result.scanRecord.serviceUuids)
                 paramsUUID.pushString(uuid.toString())
-        params.putArray("serviceUUIDs", paramsUUID)
-        params.putInt("RSSI", result.rssi)
 
-        if (result.scanRecord != null) {
-            params.putInt("txPower", result.scanRecord.txPowerLevel)
-            params.putString("deviceName", result.scanRecord.deviceName)
-            params.putInt("advFlags", result.scanRecord.advertiseFlags)
-        }
-
-        if (result.device != null) {
-            params.putString("deviceAddress", result.device.address)
-        }
+        params.putString("name", result.scanRecord.deviceName ?: "")
+        params.putString("address", result?.device.address ?: "")
+        params.putArray("services", paramsUUID)
+        params.putInt("txPower", result.scanRecord.txPowerLevel ?: 0)
+        params.putInt("rssi", result.rssi ?: 0)
 
         sendEvent?.let { it("onDeviceFound", params) }
     }

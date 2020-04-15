@@ -10,7 +10,6 @@ import android.util.Log
 import com.facebook.react.bridge.*
 import com.facebook.react.modules.core.DeviceEventManagerModule.RCTDeviceEventEmitter
 import com.secretarium.libs.c3po.ble.C3POErrorTypes.*
-import java.lang.Exception
 
 class C3POReactNativeBleModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
 
@@ -23,18 +22,28 @@ class C3POReactNativeBleModule(reactContext: ReactApplicationContext) : ReactCon
     }
 
     private var manufacturerId: Int = 0
-    private val bluetoothAdapterPointer: BluetoothAdapter? = null
+    private var scannerSettings: ScanSettings? = null
+    private var scannerShouldLive: Boolean = false
+    private var advertiserSettings: AdvertiseSettings? = null
+    private var advertiserData: AdvertiseData? = null
+    private var advertiserShouldLive: Boolean = false
+    private val bluetoothAdapterPointer: BluetoothAdapter? = BluetoothAdapter.getDefaultAdapter()
     private var bluetoothAdapterReady: Boolean = false
     private val bluetoothReceiver: BroadcastReceiver = object : BroadcastReceiver() {
 
         override fun onReceive(context: Context, intent: Intent) {
             if (intent.action == BluetoothAdapter.ACTION_STATE_CHANGED) {
-
+                
                 val state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR)
                 when (state) {
                     BluetoothAdapter.STATE_OFF -> bluetoothAdapterReady = false
-                    BluetoothAdapter.STATE_TURNING_OFF -> bluetoothAdapterReady = false
-                    BluetoothAdapter.STATE_ON -> bluetoothAdapterReady = true
+                    BluetoothAdapter.STATE_TURNING_OFF -> {
+                        bluetoothAdapterReady = false
+                    }
+                    BluetoothAdapter.STATE_ON -> {
+                        bluetoothAdapterReady = true
+                        startBroadcast()
+                    }
                     BluetoothAdapter.STATE_TURNING_ON -> bluetoothAdapterReady = true
                 }
 
@@ -82,49 +91,44 @@ class C3POReactNativeBleModule(reactContext: ReactApplicationContext) : ReactCon
             promise.reject(ECOMPINVALID.name, ECOMPINVALID.meaning)
             return
         }
-        if (!checkAdapter(promise))
-            return
-
-        advertiserInstance = bluetoothAdapterPointer?.bluetoothLeAdvertiser
-        advertiserCallback = C3POAdvertiseCallback(promise)
-
-        if (advertiserInstance == null) {
-            Log.w(displayName, EADNAVAILABLE.meaning)
-            promise.reject(EADNAVAILABLE.name, EADNAVAILABLE.meaning)
-            return
-        }
-
-        AdvertiseSettings.Builder().let { settingsBuilder ->
-            {
-                settingsBuilder.run {
-                    setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_LOW_LATENCY)
-                    setTxPowerLevel(AdvertiseSettings.ADVERTISE_TX_POWER_ULTRA_LOW)
-                    setConnectable(true)
-                }
-                settingsBuilder.build().let { settings ->
-                    {
-                        AdvertiseData.Builder().let { advertisingBuilder ->
-                            {
-                                advertisingBuilder.run {
-                                    setIncludeDeviceName(false)
-                                    setIncludeTxPowerLevel(true)
-                                    addManufacturerData(manufacturerId, payload.toArrayList().map {
-                                        (it as Number).toByte()
-                                    }.toByteArray())
-                                    addServiceUuid(ParcelUuid.fromString(uuid))
-                                }
-                                advertisingBuilder.build().let { data ->
-                                    {
-                                        advertiserInstance?.startAdvertising(settings, data, advertiserCallback);
-                                        promise.resolve(true);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
+        try {
+            val advertiserSettingsBuilder = AdvertiseSettings.Builder()
+            advertiserSettingsBuilder.run {
+                setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_LOW_LATENCY)
+                setTxPowerLevel(AdvertiseSettings.ADVERTISE_TX_POWER_ULTRA_LOW)
+                setConnectable(true)
             }
+            val advertiserDataBuilder = AdvertiseData.Builder()
+            advertiserDataBuilder.run {
+                setIncludeDeviceName(false)
+                setIncludeTxPowerLevel(true)
+                addManufacturerData(manufacturerId, payload.toArrayList().map {
+                    (it as Number).toByte()
+                }.toByteArray())
+                addServiceUuid(ParcelUuid.fromString(uuid))
+            }
+            advertiserSettings = advertiserSettingsBuilder.build()
+            advertiserData = advertiserDataBuilder.build()
+            advertiserShouldLive = true
+            startBroadcast()
+            promise.resolve(true)
+        } catch (e: Exception) {
+            promise.reject(ECNTBROAD.name, ECNTBROAD.meaning, e)
         }
+    }
+
+    private fun startBroadcast() {
+
+        if (!advertiserShouldLive)
+            return
+
+        if (advertiserCallback == null)
+            advertiserCallback = C3POAdvertiseCallback(::sendEvent)
+
+        if (advertiserInstance == null)
+            advertiserInstance = bluetoothAdapterPointer?.bluetoothLeAdvertiser
+
+        advertiserInstance?.startAdvertising(advertiserSettings, advertiserData, advertiserCallback);
     }
 
     @ReactMethod
@@ -142,7 +146,21 @@ class C3POReactNativeBleModule(reactContext: ReactApplicationContext) : ReactCon
 
     @ReactMethod
     fun scan(promise: Promise) {
-        if (!checkAdapter(promise))
+        try {
+            val scannerSettingsBuilder = ScanSettings.Builder()
+            scannerSettingsBuilder.run { setScanMode(ScanSettings.SCAN_MODE_LOW_POWER) }
+            scannerSettings = scannerSettingsBuilder.build()
+            scannerShouldLive = true
+            startScan()
+            promise.resolve(true)
+        } catch (e: Exception) {
+            promise.reject(ECNTSCAN.name, ECNTSCAN.meaning, e)
+        }
+    }
+
+    private fun startScan() {
+
+        if (!scannerShouldLive)
             return
 
         if (scannerCallback == null)
@@ -150,37 +168,13 @@ class C3POReactNativeBleModule(reactContext: ReactApplicationContext) : ReactCon
 
         if (scannerInstance == null)
             scannerInstance = bluetoothAdapterPointer?.bluetoothLeScanner
-        else
-            scannerInstance?.stopScan(scannerCallback)
 
-        if (scannerInstance == null) {
-            Log.w(displayName, ESCNAVAILABLE.meaning)
-            promise.reject(ESCNAVAILABLE.name, ESCNAVAILABLE.meaning)
-            return
-        }
-
-        ScanSettings.Builder().let { builder ->
-            {
-                builder.run { setScanMode(ScanSettings.SCAN_MODE_LOW_POWER) };
-                builder.build().let {
-                    scannerInstance?.startScan(null, it, scannerCallback)
-                    promise.resolve(true)
-                }
-            }
-        }
+        scannerInstance?.startScan(null, scannerSettings, scannerCallback)
     }
 
     @ReactMethod
     fun stopScan(promise: Promise) {
-        if (!checkAdapter(promise))
-            return
-
-        if (scannerInstance != null) {
-            scannerInstance?.stopScan(scannerCallback)
-            scannerInstance = null
-            promise.resolve(true)
-        } else {
-            promise.resolve(false)
-        }
+        scannerShouldLive = false
+        scannerInstance?.stopScan(scannerCallback)
     }
 }

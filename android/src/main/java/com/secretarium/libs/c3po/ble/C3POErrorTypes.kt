@@ -3,6 +3,8 @@ package com.secretarium.libs.c3po.ble
 enum class C3POErrorTypes(val meaning: String) {
 
     ECOMPINVALID("Invalid company ID"),
+    ECNTSCAN("Couldn't start scanning"),
+    ECNTBROAD("Couldn't start broadcasting"),
     EBLNAVAILABLE("Bluetooth unavailable"),
     EBLDISABLED("Bluetooth disabled"),
     ESCNAVAILABLE("Scanner unavailable"),
