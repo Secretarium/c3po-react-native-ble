@@ -1,16 +1,41 @@
-#import "C3POReactNativeBle.h"
+#import <Foundation/Foundation.h>
+#import <React/RCTBridgeModule.h>
+#import <React/RCTEventEmitter.h>
 
-@implementation C3POReactNativeBle
+@interface RCT_EXTERN_MODULE(C3POReactNativeBle, RCTEventEmitter)
 
-RCT_EXPORT_MODULE()
+    RCT_EXTERN_METHOD(
+        supportedEvents
+    )
 
-RCT_REMAP_METHOD(getDeviceName,
-                 findEventsWithResolver:(RCTPromiseResolveBlock)resolve
-                 rejecter:(RCTPromiseRejectBlock)reject)
-{
-  UIDevice *deviceInfo = [UIDevice currentDevice];
+    RCT_EXTERN_METHOD(
+        setManufacturerId: (nonnull NSNumber *)manufacturerId
+    )
 
-  resolve(deviceInfo.name);
-}
+    RCT_EXTERN_METHOD(
+        broadcast: (NSString *)uuid
+        payload:(NSArray *)payload
+        resolve:(RCTPromiseResolveBlock)resolve
+        rejecter:(RCTPromiseRejectBlock)reject
+    )
+
+    RCT_EXTERN_METHOD(
+        stopBroadcast
+        resolve:(RCTPromiseResolveBlock)resolve
+        rejecter:(RCTPromiseRejectBlock)reject
+    )
+
+    RCT_EXTERN_METHOD(
+        scan
+        resolve:(RCTPromiseResolveBlock)resolve
+        rejecter:(RCTPromiseRejectBlock)reject
+    )
+
+    RCT_EXTERN_METHOD(
+        stopScan
+        resolve:(RCTPromiseResolveBlock)resolve
+        rejecter:(RCTPromiseRejectBlock)reject
+    )
 
 @end
+    
