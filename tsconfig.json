@@ -1,11 +1,12 @@
 {
+    "include": [
+        "./src"
+    ],
+    "exclude": [
+        "**/__tests__/**"
+    ],
     "compilerOptions": {
         "baseUrl": ".",
-        "paths": {
-            "@secretarium/react-native-ble": [
-                "./src/index"
-            ]
-        },
         "allowUnreachableCode": false,
         "allowUnusedLabels": false,
         "esModuleInterop": true,
