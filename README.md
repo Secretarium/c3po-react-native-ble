@@ -1,7 +1,16 @@
 # @secretarium/react-native-ble
 
 Secretarium BLE component for C3PO.
-This component aims are providing Bluetooth LE advertising (peripheral) and scnanning (central) for react-native. It it coded in Kotlin for Android and Swift for iOS.
+This component aims are providing Bluetooth LE advertising (peripheral) and scanning (central) for react-native. It it coded in Kotlin for Android and Swift for iOS.
+
+The original motivation for this package was the creation of a proof-of-concept and technological demonstration in confidential computing privacy-first application for mitigation of population risk in the dawn of the Covid-19 crisis.
+
+The current package supports the following:
+
+- [x] Android Peripheral (Advertiser)
+- [x] Android Central (Scanner)
+- [x] iOS Peripheral (Advertiser)
+- [x] iOS Central (Scanner)
 
 ## Limitations
 
