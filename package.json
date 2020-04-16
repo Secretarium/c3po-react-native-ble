@@ -1,6 +1,6 @@
 {
     "name": "@secretarium/react-native-ble",
-    "version": "0.1.0",
+    "version": "0.0.1",
     "description": "Secretarium BLE component for C3PO",
     "main": "lib/commonjs/index.js",
     "module": "lib/module/index.js",
@@ -68,8 +68,8 @@
     },
     "release-it": {
         "git": {
-            "commitMessage": "chore: release %s",
-            "tagName": "v%s"
+            "commitMessage": "chore: Release ${version}",
+            "tagName": "v${version}"
         },
         "npm": {
             "publish": true
@@ -82,6 +82,9 @@
                 "preset": "angular"
             }
         }
+    },
+    "publishConfig": {
+        "access": "public"
     },
     "@react-native-community/bob": {
         "source": "src",
