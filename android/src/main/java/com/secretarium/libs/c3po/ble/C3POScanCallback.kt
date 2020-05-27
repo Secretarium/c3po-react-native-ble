@@ -18,14 +18,13 @@ class C3POScanCallback : ScanCallback {
         val params = Arguments.createMap()
         val paramsUUID = Arguments.createArray()
 
-        if (result.scanRecord?.serviceUuids != null)
-            for (uuid in result.scanRecord.serviceUuids)
-                paramsUUID.pushString(uuid.toString())
+        for (uuid in result.scanRecord?.serviceUuids!!)
+            paramsUUID.pushString(uuid.toString())
 
-        params.putString("name", result.scanRecord.deviceName ?: "")
-        params.putString("address", result?.device.address ?: "")
+        params.putString("name", result.scanRecord?.deviceName ?: "")
+        params.putString("address", result.device.address ?: "")
         params.putArray("services", paramsUUID)
-        params.putInt("txPower", result.scanRecord.txPowerLevel ?: 0)
+        params.putInt("txPower", result?.scanRecord?.txPowerLevel ?: 0)
         params.putInt("rssi", result.rssi ?: 0)
 
         sendEvent?.let { it("onDeviceFound", params) }
