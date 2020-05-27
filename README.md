@@ -27,7 +27,7 @@ yarn install @secretarium/react-native-ble
 
 In `AndroidManifest.xml`, add Bluetooth permissions and update <uses-sdk/>:
 ```xml
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.secretarium.apps.c3po">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="...">
     <uses-permission android:name="android.permission.BLUETOOTH"/>
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
